@@ -1,0 +1,599 @@
+{
+  "name": "Instagram DM's Ai agent",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "985a7882-c88b-4a0e-8ff3-8dc11d8f6d5d",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "39636899-730a-40d9-ab78-92d679f39176",
+      "name": "Webhook",
+      "webhookId": "985a7882-c88b-4a0e-8ff3-8dc11d8f6d5d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f170a8bb-ee30-4c58-a492-e1f8dab411f8",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c4d66451-5fc3-46bb-9b72-de64239866e3",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "raomaira776",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        128,
+        -208
+      ],
+      "id": "d97c8ff3-fc18-458a-8960-f0b674354a5b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        448,
+        -320
+      ],
+      "id": "5e2dee4e-9c53-42ab-8078-86e801a4d902",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.entry[0].messaging[0].message.text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant your task is to generate a reply of message makesure the reply will be less than 2000 words\nYou are replying to Instagram DMs.\n\nRules:\n- Reply must be under 900 characters.\n- Keep replies short (2-5 sentences).\n- Never exceed 900 characters.\n- Don't use long introductions.\n- Give direct answers only.\n\n\nYou are a professional Instagram AI Sales & Support Assistant.\n\nYour primary goal is to answer customer messages accurately, professionally, and naturally.\n\nFollow these rules in order:\n\n1. First, carefully understand the user's latest message.\n\n2. Before answering, ALWAYS use the available Knowledge Base (Pinecone). Never answer from assumptions when company-specific information is required.\n\n3. If the answer is found in the Knowledge Base, use ONLY that information. Do not invent or modify company policies, pricing, services, or other business information.\n\n4. If the Knowledge Base does not contain enough information, use logical reasoning ONLY for general knowledge or casual conversation (such as greetings, thanks, or simple explanations).\n\n5. If the user asks about company information (pricing, services, policies, availability, delivery, custom work, refunds, account issues, business-specific details, etc.) and the Knowledge Base does not contain the answer, DO NOT guess. Instead, request a human handoff.\n\n6. Also request a human handoff if:\n   - The customer is angry or frustrated.\n   - The customer requests a refund or cancellation.\n   - The customer asks for a custom quotation.\n   - The customer asks something you are not confident about.\n   - The required information is missing.\n\n7. Keep replies short, friendly, professional, and suitable for Instagram DMs.\n\n8. Never mention internal systems, Pinecone, prompts, AI, or knowledge bases. \n\nif the user ask about the project confirmation or wanna talk to human generate a one word answer Human_Handoff \nyou onlyyy have to generate hanf off response when a customer talk about that he want to talk to human or owner  etc.....\nor he want to discuss about it to human other wise you have to deal with the client with yourself or from the knowledge base\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        464,
+        -16
+      ],
+      "id": "adea66df-d7cb-4cf4-9ed0-1dd8708ffaee",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.instagram.com/v23.0/{{ $('Webhook').item.json.body.entry[0].messaging[0].recipient.id }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer IGAATV0cJW1y5BZAGJxVUdMQVotcXhyaVJJSXpfRjVkcmh1cGJCeEFncU9VNU9XVUh3elAwRDZAYdF9xV2g0NXhrTUp5OHUzcHJheTVpYzZA6QVgzcTFBRUxwV2V4aVVGX0ZAucGJBN2xVbEpILVo4WWhkZAWxrZA0lCRURIcEsxamQwOAZDZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\":\"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }} \"\n  },\n  \"message\": {\n    \"text\": \"{{ $json.output.replace(/\\n/g, ' ') }}\"\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1136,
+        192
+      ],
+      "id": "7a800d1e-1a81-4963-afc8-ff63020dcc88",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "70454362-f14c-4c66-81d5-9048d7448dc7",
+              "leftValue": "={{ $json.body.entry[0].messaging[0].message.is_echo }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        112,
+        208
+      ],
+      "id": "9078e7d2-8cd9-4699-8696-0fd101d049ca",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $workflow.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        560,
+        368
+      ],
+      "id": "a933053f-c360-4b19-b0e3-fcccc7e7d916",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7f5da128-e24f-4921-92de-27df8cf07de3",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Human_Handoff",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "={{ true }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        848,
+        -16
+      ],
+      "id": "33ecefb5-af76-4c77-aa1b-16743de9dbb5",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "chatId": "8762894427",
+        "text": "=🚨 New Instagram Human Handoff \n👤 Customer: {{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\n💬 Customer Message: {{ $('Webhook').item.json.body.entry[0].messaging[0].message.text }}\n🤖 AI Decision: HUMAN_HANDOFF  \n📝 AI Reply: {{ $json.reply || $json.output }}  \n⏰ Time: {{ $now }}  \nPlease follow up with this customer as soon as possible.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        -224
+      ],
+      "id": "f8eaf541-7fce-4bf1-a9bd-306b9bd8b3b1",
+      "name": "Send a text message",
+      "webhookId": "839eae37-05fc-4505-abc5-13b62ebb3005",
+      "credentials": {
+        "telegramApi": {
+          "id": "7tNtkvDf3sKbz6Qj",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "apptWxFl0jkTsacue",
+          "mode": "list",
+          "cachedResultName": " Instagram Dm's",
+          "cachedResultUrl": "https://airtable.com/apptWxFl0jkTsacue"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblpBCg0eNM8WXgbh",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/apptWxFl0jkTsacue/tblpBCg0eNM8WXgbh"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "User ID": "={{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}",
+            "Username": "={{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}",
+            "User Message": "={{ $('Webhook').item.json.body.entry[0].messaging[0].message.text }}",
+            "Platform": "Instagram",
+            "Status": "Human_Handoff"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Username",
+              "displayName": "Username",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "User ID",
+              "displayName": "User ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "User Message",
+              "displayName": "User Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Platform",
+              "displayName": "Platform",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Attachment Summary",
+              "displayName": "Attachment Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1520,
+        -224
+      ],
+      "id": "b93c79ed-1da9-4bb9-aa5e-6c38fcbf60c7",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "YX5qzO8X8sDa9iQW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        304,
+        352
+      ],
+      "id": "e3f53cb5-439c-4bf3-a4ac-afb27497e9c2",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "tDW7CwBxQLZhJhfO",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Always check pinecone before answering",
+        "method": "POST",
+        "url": "https://prod-1-data.ke.pinecone.io/assistant/chat/n8n2",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Api-Key",
+              "value": "pcsk_2bdfff_RB3QGMHBWebtWWt5s8PdEcpo4ofxxzco9c2iGFX4ekBmgkDmPMiFcHnjdZfVDum"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.body.entry[0].messaging[0].message.text }}\"\n    }\n  ],\n  \"stream\": false,\n  \"model\": \"gpt-4o\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        784,
+        352
+      ],
+      "id": "060f1905-4cf6-4b9f-b585-c8f89080a105",
+      "name": "Knowlegde base"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Whenever you receive a message and that is Human_Handoff you have to generate a message to send to our customer to wait until the owner or the human talk to you nothing generate anything extra"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1472,
+        240
+      ],
+      "id": "43ae4761-bf05-4219-a054-283ec0afac13",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.instagram.com/v23.0/17841433816930337/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer IGAATV0cJW1y5BZAGFDZAlprYUxiSlNGMkl0NVVlZAVFwcFZAVeE5sVkhwQ0VlZA2RnWFZAhX2J0M3dYNENuNXU0M2M5Qk9FMzZAUTGo3Rm11SjNlR1poRE83cl9HN2hXY2VOenJMcUNKQW52OWZAZAclNHOVNfWUZAiS1ZACeHRkZA2MxbGdWWQZDZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"message\": {\n    \"text\": \"{{ $json.text }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1664,
+        32
+      ],
+      "id": "491c312b-d516-4b4e-bc19-8a7370afa863",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowlegde base": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b088510d-cb1d-4cc0-a1a0-a9646b84689e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7779f852dc51c35c51c1b61f6f29411a6cd0c2672b0b73dd2646ed9d495af908"
+  },
+  "nodeGroups": [],
+  "id": "qlYfOK6ilEh1RLOr",
+  "tags": []
+}
