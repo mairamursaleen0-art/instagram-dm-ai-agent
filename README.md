@@ -1,3 +1,4 @@
+<img width="1918" height="876" alt="03 08 2026_20 19 22_REC" src="https://github.com/user-attachments/assets/664fa820-f29f-47d3-acfc-131881199b21" />
 # Instagram DM AI Agent
 
 An AI-powered Instagram DM automation system built with **n8n** to handle customer inquiries, provide intelligent responses, manage conversations, and hand off complex queries to a human when needed.
